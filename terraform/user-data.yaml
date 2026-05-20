@@ -1,0 +1,16 @@
+users:
+  - name: ansible
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDeIfZncro2FUCBp9bQPRCzVIrsDyCaBw01I4K93l48LO1X/DNVQPS6un8zsrbJNfRdIizuSNz6IWKwwWzuL5d2tWPtcNqID+VbHdCXFFK99JaL9IJ8JWx2s8cG1vhqZYHjU4y5Z0QCJMzU/QACu13Hpb+pLvFwHoJnmM9T6d2I8Ca0c6BWccrOOoO2wL1btPeaaVWVi7anBS/hlRdnon1R/bsAVz0k5/kcu94hWpNMJz6FODv8ohv3GL7Ut9pnekOm9Rf0/qEERq/l5fq1UvsKSu6LqnzHQEMW3aYQmaR7npMmH8ygmakLQkxokq5tyNAELVDC6L8LQ2/TlCbp3tRpyUv3dJtiAFjuP0fpCdywoFEqYpYo7NRuWK72IvhrePVSTzmpTjpPjIypwdjDlPVZKRIx3SWe7BJJhDqYtZ0Lyx02z/V34mLnLS4x8i2ImR2GbijABYzi7bMqCFgb7lbsz2sgatn/Gc0jXAgDkLvpW5ybaEn608N5kCysJOn59s= anastasia@MacBook-Air-Anastasia.local
+
+  - name: teacher
+    sudo: ALL=(ALL) ALL
+    shell: /bin/bash
+
+ssh_pwauth: true
+chpasswd:
+  list: |
+    teacher:12345678
+  expire: false
