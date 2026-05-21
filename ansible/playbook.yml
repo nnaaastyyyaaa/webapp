@@ -1,0 +1,17 @@
+- name: Common setup
+  hosts: all
+  become: true
+  roles:
+    - common
+
+- name: Worker configuration
+  hosts: worker
+  become: true
+  roles:
+    - worker
+
+- name: Database configuration
+  hosts: db
+  become: true
+  roles:
+    - db

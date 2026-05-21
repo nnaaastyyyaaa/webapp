@@ -1,0 +1,14 @@
+- name: Install Node.js
+  apt:
+    name: nodejs
+    state: present
+
+- name: Install npm
+  apt:
+    name: npm
+    state: present
+
+- name: Copy app (example)
+  copy:
+    src: ../../app/
+    dest: /opt/app/
