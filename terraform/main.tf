@@ -2,19 +2,36 @@ terraform {
   required_providers {
     libvirt = {
       source  = "dmacvicar/libvirt"
-      version = "0.7.6"
+      version = "~> 0.7.6"
+    }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
     }
   }
 }
 
 provider "libvirt" {
-  uri = "qemu:///session"
+  uri = "qemu:///system"
+}
+
+provider "tls" {}
+
+resource "tls_private_key" "ansible_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "local_sensitive_file" "ansible_private_key" {
+  content         = tls_private_key.ansible_key.private_key_pem
+  filename        = "${path.module}/../ansible/ansible_id_rsa"
+  file_permission = "0600"
 }
 
 resource "libvirt_volume" "ubuntu_base" {
   name   = "ubuntu-base.qcow2"
   pool   = "default"
-  source = "https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img"
+  source = "https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-amd64.img"
   format = "qcow2"
 }
 
@@ -22,60 +39,68 @@ resource "libvirt_volume" "worker_disk" {
   name           = "worker-disk.qcow2"
   base_volume_id = libvirt_volume.ubuntu_base.id
   pool           = "default"
-  size           = 10 * 1024 * 1024 * 1024
+  size           = 10737418240 # 10 GB
 }
 
 resource "libvirt_volume" "db_disk" {
   name           = "db-disk.qcow2"
   base_volume_id = libvirt_volume.ubuntu_base.id
   pool           = "default"
-  size           = 10 * 1024 * 1024 * 1024
+  size           = 10737418240
 }
 
 resource "libvirt_cloudinit_disk" "worker_init" {
-  name = "worker-init.iso"
-
-  user_data = file("${path.module}/cloud_init.cfg")
+  name      = "worker_init.iso"
+  user_data = templatefile("${path.module}/cloud_init.cfg", {
+    ssh_key  = trimspace(tls_private_key.ansible_key.public_key_openssh),
+    hostname = "worker"
+  })
   pool      = "default"
 }
 
 resource "libvirt_cloudinit_disk" "db_init" {
-  name = "db-init.iso"
-
-  user_data = file("${path.module}/cloud_init.cfg")
+  name      = "db_init.iso"
+  user_data = templatefile("${path.module}/cloud_init.cfg", {
+    ssh_key  = trimspace(tls_private_key.ansible_key.public_key_openssh),
+    hostname = "db"
+  })
   pool      = "default"
 }
 
-resource "libvirt_domain" "vm_worker" {
-  name   = "vm-worker"
-  memory = 2048
+resource "libvirt_domain" "worker" {
+  name   = "worker-vm"
+  memory = "2048"
   vcpu   = 2
-
-    machine = "pc-i440fx-2.12"
+  type     = "qemu"
+  emulator = "/usr/bin/qemu-system-x86_64"
 
   cloudinit = libvirt_cloudinit_disk.worker_init.id
 
   network_interface {
     network_name   = "default"
-    wait_for_lease = true
   }
 
   disk {
     volume_id = libvirt_volume.worker_disk.id
   }
+
+  console {
+    type        = "pty"
+    target_port = "0"
+    target_type = "serial"
+  }
 }
 
-resource "libvirt_domain" "vm_db" {
-  name   = "vm-db"
-  memory = 1024
-  vcpu   = 1
-    machine = "pc-i440fx-2.12"
-
+resource "libvirt_domain" "db" {
+  name   = "db-vm"
+  memory = "2048"
+  vcpu   = 2
+  type     = "qemu"
+  emulator = "/usr/bin/qemu-system-x86_64"
   cloudinit = libvirt_cloudinit_disk.db_init.id
 
   network_interface {
     network_name   = "default"
-    wait_for_lease = true
   }
 
   disk {
@@ -84,7 +109,7 @@ resource "libvirt_domain" "vm_db" {
 
   console {
     type        = "pty"
-    target_type = "serial"
     target_port = "0"
+    target_type = "serial"
   }
 }
