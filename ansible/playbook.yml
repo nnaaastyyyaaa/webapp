@@ -1,17 +1,16 @@
-- name: Common setup
-  hosts: all
+- hosts: all
   become: true
   roles:
     - common
+    - users
 
-- name: Worker configuration
-  hosts: worker
+- hosts: db
   become: true
   roles:
-    - worker
+    - postgres
 
-- name: Database configuration
-  hosts: db
+- hosts: workers
   become: true
   roles:
-    - db
+    - app
+    - nginx

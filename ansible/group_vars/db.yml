@@ -1,1 +1,1 @@
-db_name: task
+postgres_allowed_ip: "{{ hostvars['worker']['ansible_host'] }}"
