@@ -1,12 +1,17 @@
-- name: Update apt cache
-  apt:
-    update_cache: yes
-
-- name: Install basic packages
+- name: Install base packages
   apt:
     name:
       - curl
-      - vim
       - git
-      - net-tools
+      - nginx
+      - sudo
     state: present
+    update_cache: true
+
+- name: Create gradebook file
+  copy:
+    dest: /home/student/gradebook
+    content: "{{ gradebook_number }}"
+    owner: root
+    group: root
+    mode: "0644"

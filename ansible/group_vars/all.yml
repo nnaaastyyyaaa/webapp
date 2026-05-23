@@ -1,1 +1,6 @@
-ansible_user: ansible
+app_name: webapp
+app_port: 5200
+db_name: tasks
+db_user: postgres
+db_password: password123
+gradebook_number: 1

@@ -1,0 +1,17 @@
+[Unit]
+Description=mywebapp
+Requires=mywebapp.socket
+
+[Service]
+User=app
+WorkingDirectory=/opt/mywebapp
+
+EnvironmentFile=/etc/mywebapp/config.env
+
+ExecStartPre=/opt/mywebapp/scripts/migrate.sh
+ExecStart=/usr/bin/node /opt/mywebapp/server.js
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

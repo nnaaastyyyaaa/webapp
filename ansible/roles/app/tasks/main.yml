@@ -1,0 +1,62 @@
+- name: Install nodejs
+  apt:
+    name:
+      - nodejs
+      - npm
+    state: present
+    update_cache: true
+
+- name: Create app directory
+  file:
+    path: /opt/mywebapp
+    state: directory
+    owner: app
+    group: app
+
+- name: Copy app
+  copy:
+    src: ../../../../mywebapp/
+    dest: /opt/mywebapp/
+    owner: app
+    group: app
+
+- name: Make migrate executable
+  file:
+    path: /opt/mywebapp/scripts/migrate.sh
+    mode: "0755"
+
+- name: Install dependencies
+  npm:
+    path: /opt/mywebapp
+
+- name: Generate prisma client
+  command: npx prisma generate
+  args:
+    chdir: /opt/mywebapp
+
+- name: Create config
+  template:
+    src: config.env.j2
+    dest: /etc/mywebapp/config.env
+
+- name: Install systemd service
+  template:
+    src: mywebapp.service.j2
+    dest: /etc/systemd/system/mywebapp.service
+
+- name: Install socket
+  template:
+    src: mywebapp.socket.j2
+    dest: /etc/systemd/system/mywebapp.socket
+
+- name: Start socket
+  systemd:
+    name: mywebapp.socket
+    enabled: true
+    state: started
+
+- name: Start app
+  systemd:
+    name: mywebapp.service
+    enabled: true
+    state: started
