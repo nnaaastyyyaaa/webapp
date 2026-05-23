@@ -78,6 +78,7 @@ resource "libvirt_domain" "worker" {
 
   network_interface {
     network_name   = "default"
+    wait_for_lease = true
   }
 
   disk {
@@ -88,6 +89,10 @@ resource "libvirt_domain" "worker" {
     type        = "pty"
     target_port = "0"
     target_type = "serial"
+  }
+
+    graphics {
+    type = "spice"
   }
 }
 
@@ -101,6 +106,7 @@ resource "libvirt_domain" "db" {
 
   network_interface {
     network_name   = "default"
+    wait_for_lease = true
   }
 
   disk {
@@ -111,5 +117,9 @@ resource "libvirt_domain" "db" {
     type        = "pty"
     target_port = "0"
     target_type = "serial"
+  }
+
+    graphics {
+    type = "spice"
   }
 }
