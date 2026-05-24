@@ -177,8 +177,6 @@ http://<WORKER_IP>/
 
 # Health Endpoints
 
-## Liveness Probe
-
 ```http
 GET /health/alive
 ```
@@ -196,8 +194,6 @@ OK
 ```
 
 ---
-
-## Readiness Probe
 
 ```http
 GET /health/ready
