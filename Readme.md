@@ -1,6 +1,4 @@
-# Лабораторна робота №4 — Terraform + Ansible
-
-## Опис застосунку webapp
+# Опис застосунку webapp
 
 У цьому проєкті реалізовано розгортання багатовузлового веб-застосунку з використанням:
 
@@ -226,14 +224,14 @@ OK
 ## Отримати всі задачі
 
 ```http
-GET /
+GET /tasks
 Accept: application/json
 ```
 
 Перевірка:
 
 ```bash
-curl -H "Accept: application/json" http://<WORKER_IP>/
+curl -H "Accept: application/json" http://<WORKER_IP>/tasks
 ```
 
 ---
@@ -241,14 +239,14 @@ curl -H "Accept: application/json" http://<WORKER_IP>/
 ## Створити задачу
 
 ```http
-POST /
+POST /tasks
 Content-Type: application/json
 ```
 
 Приклад:
 
 ```bash
-curl -X POST http://<WORKER_IP>/ \
+curl -X POST http://<WORKER_IP>/tasks \
 -H "Content-Type: application/json" \
 -d '{"title":"test task"}'
 ```
@@ -258,13 +256,13 @@ curl -X POST http://<WORKER_IP>/ \
 ## Позначити задачу як виконану
 
 ```http
-PATCH /1
+PATCH /tasks/:id/1
 ```
 
 Приклад:
 
 ```bash
-curl -X PATCH http://<WORKER_IP>/1
+curl -X PATCH http://<WORKER_IP>/tasks/1/done
 ```
 
 ---
@@ -275,16 +273,6 @@ curl -X PATCH http://<WORKER_IP>/1
 
 ```text
 http://<WORKER_IP>/
-```
-
----
-
-# Логи
-
-## Логи застосунку
-
-```bash
-journalctl -u mywebapp -f
 ```
 
 ---
